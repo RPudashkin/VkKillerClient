@@ -3,11 +3,11 @@
 
 
 VkKillerClient::VkKillerClient(QObject* parent):
-    QTcpSocket		(parent),
-    m_buffer		(std::make_unique<QByteArray> ()),
-    m_outstream 	(std::make_unique<QDataStream>(m_buffer.get(), QIODevice::WriteOnly)),
-    m_name			("anonymous"),
-    m_currRequest	(0)
+    QTcpSocket      (parent),
+    m_buffer        (std::make_unique<QByteArray> ()),
+    m_outstream     (std::make_unique<QDataStream>(m_buffer.get(), QIODevice::WriteOnly)),
+    m_name          ("anonymous"),
+    m_currRequest   (0)
 {
     m_outstream->setVersion(QDataStream::Qt_DefaultCompiledVersion);
 }
@@ -57,7 +57,7 @@ void VkKillerClient::getTopicHistoryRequest(quint16 topicId) noexcept {
 }
 
 
-void VkKillerClient::getLastMessagesRequest(quint16 topicId) noexcept{
+void VkKillerClient::getLastMessagesRequest(quint16 topicId) noexcept {
     sendingBegin(Request_type::GET_LAST_MESSAGES_FROM_TOPIC);
     *m_outstream << topicId;
     sendingEnd  ();

@@ -4,8 +4,8 @@
 
 
 CreateTopicDialog::CreateTopicDialog(QWidget* parent) :
-    QDialog	    (parent),
-    ui		    (new Ui::CreateTopicDialog),
+    QDialog     (parent),
+    ui          (new Ui::CreateTopicDialog),
     m_topicName (""),
     m_message   ("")
 {
@@ -20,9 +20,9 @@ CreateTopicDialog::~CreateTopicDialog() {
 
 void CreateTopicDialog::on_ok_clicked() {
     QString topicName    = ui->nameLine->text().trimmed();
-    QString message	     = ui->messageLine->toPlainText().trimmed();
+    QString message      = ui->messageLine->toPlainText().trimmed();
     size_t  topicNameLen = topicName.length();
-    size_t  messageLen	 = message.length();
+    size_t  messageLen   = message.length();
 
     constexpr size_t MAX_TOPIC_NAME_LEN = 150;
     constexpr size_t MAX_MESSAGE_LEN    = 300;

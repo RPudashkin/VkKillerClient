@@ -17,15 +17,15 @@ public:
     ~ConnectionToHostDialog();
 
     QHostAddress address() const noexcept;
-    quint16		 port   () const noexcept;
+    quint16      port   () const noexcept;
 
 private slots:
     void on_connect_clicked();
 
 private:
     Ui::ConnectionToHostDialog* ui;
-    QHostAddress				m_address;
-    quint16						m_port;
+    QHostAddress                m_address;
+    quint16                     m_port;
 };
 
 #endif // CONNECTION_TO_HOST_DIALOG_H

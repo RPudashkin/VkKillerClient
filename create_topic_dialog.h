@@ -7,6 +7,7 @@ namespace Ui {
     class CreateTopicDialog;
 }
 
+
 class CreateTopicDialog: public QDialog {
     Q_OBJECT
 
@@ -22,8 +23,8 @@ private slots:
 
 private:
     Ui::CreateTopicDialog* ui;
-    QString				   m_topicName;
-    QString				   m_message;
+    QString                m_topicName;
+    QString                m_message;
 };
 
 #endif // CREATE_TOPIC_DIALOG_H

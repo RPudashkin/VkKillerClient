@@ -2,9 +2,10 @@
 #include "connection_to_host_dialog.h"
 #include "ui_connection_to_host_dialog.h"
 
+
 ConnectionToHostDialog::ConnectionToHostDialog(QWidget* parent):
-    QDialog	(parent),
-    ui		(new Ui::ConnectionToHostDialog)
+    QDialog (parent),
+    ui      (new Ui::ConnectionToHostDialog)
 {
     ui->setupUi(this);
     setFixedSize(400, 200);
@@ -24,7 +25,7 @@ void ConnectionToHostDialog::on_connect_clicked() {
         QMessageBox::warning(0, "Connection error", "Enter the ip address!");
     else {
         m_address = QHostAddress(std::move(address));
-        m_port	  = port;
+        m_port    = port;
         accept();
     }
 }

@@ -5,26 +5,23 @@
 #include "connection_to_host_dialog.h"
 #include "vkkiller_request_reply.h"
 
-#include <QHostAddress>
-#include <iostream>
-
 
 MainWindow::MainWindow(QWidget* parent):
-    QMainWindow		(parent),
-    m_client		(std::make_unique<VkKillerClient>()),
-    ui				(new Ui::MainWindow)
+    QMainWindow     (parent),
+    m_client        (std::make_unique<VkKillerClient>()),
+    ui              (new Ui::MainWindow)
 
 {
     ui->setupUi(this);
 
     connect(m_client.get(), &VkKillerClient::readyRead,
-            this, 			&MainWindow::processReplyFromServer);
+            this,           &MainWindow::processReplyFromServer);
 
     connect(ui->connectToServerAction, &QAction::triggered,
-            this,					   &MainWindow::openConnectionDialog);
+            this,                      &MainWindow::openConnectionDialog);
 
     connect(m_client.get(), SIGNAL(error    (QAbstractSocket::SocketError)),
-            this,         	SLOT  (slotError(QAbstractSocket::SocketError)));
+            this,           SLOT  (slotError(QAbstractSocket::SocketError)));
 
     m_client->getTopicsListRequest();
 }
@@ -84,7 +81,7 @@ void MainWindow::on_topicsList_doubleClicked(const QModelIndex& index) {
 
 
 void MainWindow::on_send_clicked() {
-    QString msg 	= ui->messageLine->toPlainText().trimmed();
+    QString msg     = ui->messageLine->toPlainText().trimmed();
     quint16 topicId = 0;
 
     ui->messageLine->clear();
@@ -106,7 +103,7 @@ void MainWindow::on_send_clicked() {
 
 void MainWindow::processReplyFromServer() {
     QDataStream in(m_client.get());
-    quint16 	blockSize = 0;
+    quint16     blockSize = 0;
 
     in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
 
@@ -170,19 +167,19 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
     QStringList topicsList = server_msg.split(SEPARATING_CH);
     ui->topicsList->clear();
 
-    QVector<int> 		topicsId;
-    QVector<QString> 	topicsNames;
-    QVector<int> 		topicsRatings;
+    QVector<int>        topicsId;
+    QVector<QString>    topicsNames;
+    QVector<int>        topicsRatings;
 
     size_t finish = topicsList.size() - 3;
     for (size_t i = 0; i < finish; i += 3) {
-        int     topicId 	= topicsList.at(i).toInt();
-        QString topicName	= topicsList.at(i+1);
-        int 	topicRating = topicsList.at(i+2).toInt();
+        int     topicId     = topicsList.at(i).toInt();
+        QString topicName   = topicsList.at(i+1);
+        int     topicRating = topicsList.at(i+2).toInt();
 
-        topicsId.push_back		(topicId);
-        topicsNames.push_back	(std::move(topicName));
-        topicsRatings.push_back	(topicRating);
+        topicsId.push_back      (topicId);
+        topicsNames.push_back   (std::move(topicName));
+        topicsRatings.push_back (topicRating);
     }
 
     // sort by rating here
