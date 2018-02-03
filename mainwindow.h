@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QTime>
 #include <memory>
 #include "vkkiller_client.h"
 
@@ -19,23 +20,29 @@ public:
     ~MainWindow();
 
 private slots:
+    void on_topicsList_currentRowChanged(int currentRow);
     void on_send_clicked                ();
-    void on_topicsList_doubleClicked    (const QModelIndex& index);
     void on_createTopic_clicked         ();
     void openConnectionDialog           ();
     void connectionError                (QAbstractSocket::SocketError err);
     void processReplyFromServer         ();
+    void updateCooldownTime				();
 
 private:
-    static constexpr char SEPARATING_CH	= '\1';
+    static constexpr char SEPARATING_CH		 = '\1';
+    static constexpr int  MESSAGING_COOLDOWN = 15;
 
-    void updateTopicsList   (const QString& server_msg)                  noexcept;
-    void updateTopicHistory (const QString& server_msg, quint16 topicId) noexcept;
+    void updateTopicsList   (const QString& server_msg) noexcept;
+    void updateTopicHistory (const QString& server_msg) noexcept;
+    void blockMessaging		()							noexcept;
 
     std::unique_ptr<VkKillerClient> m_client;
+    QVector<quint16>				m_topicsId;
     Ui::MainWindow*                 ui;
-    quint16                         m_selectedTopicNum;
     QTimer                          m_updateTopicsListTimer;
+    QTimer							m_updateCooldownTimer;
+    QTime							m_startCooldownTime;
+    bool							m_blockedMessaging;
 };
 
 #endif // MAINWINDOW_H
