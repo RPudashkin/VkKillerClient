@@ -21,6 +21,8 @@ public:
 private slots:
     void on_ok_clicked();
 
+    void on_messageLine_textChanged();
+
 private:
     Ui::CreateTopicDialog* ui;
     QString                m_topicName;

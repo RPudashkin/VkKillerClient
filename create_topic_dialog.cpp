@@ -1,6 +1,7 @@
 #include <QMessageBox>
 #include "create_topic_dialog.h"
 #include "ui_create_topic_dialog.h"
+#include "vkkiller_server_constants.h"
 
 
 CreateTopicDialog::CreateTopicDialog(QWidget* parent) :
@@ -19,26 +20,27 @@ CreateTopicDialog::~CreateTopicDialog() {
 
 
 void CreateTopicDialog::on_ok_clicked() {
-    QString topicName    = ui->nameLine->text().trimmed();
-    QString message      = ui->messageLine->toPlainText().trimmed();
-    size_t  topicNameLen = topicName.length();
-    size_t  messageLen   = message.length();
-
-    constexpr size_t MAX_TOPIC_NAME_LEN = 150;
-    constexpr size_t MAX_MESSAGE_LEN    = 300;
+    QString topicName	= ui->nameLine->text().trimmed();
+    QString message     = ui->messageLine->toPlainText().trimmed();
 
     if (topicName.isEmpty())
         QMessageBox::warning(0, "Creation topic error", "Enter the topic name!");
     else if (message.isEmpty())
         QMessageBox::warning(0, "Creation topic error", "Enter the message!");
-    else if (topicNameLen > MAX_TOPIC_NAME_LEN)
-        QMessageBox::warning(0, "Creation topic error", "The topic name is too long!");
-    else if (messageLen > MAX_MESSAGE_LEN)
-        QMessageBox::warning(0, "Creation topic error", "The message is too long!");
     else {
         m_topicName = std::move(topicName);
         m_message   = std::move(message);
         accept();
+    }
+}
+
+
+void CreateTopicDialog::on_messageLine_textChanged() {
+    QString text = ui->messageLine->toPlainText();
+
+    if (text.length() > Server_constant::MAX_MESSAGE_LENGTH) {
+        ui->messageLine->setText(text.left(Server_constant::MAX_MESSAGE_LENGTH));
+        ui->messageLine->moveCursor(QTextCursor::EndOfBlock);
     }
 }
 

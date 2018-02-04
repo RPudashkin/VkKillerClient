@@ -58,6 +58,9 @@
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
+       <property name="maxLength">
+        <number>150</number>
+       </property>
       </widget>
      </item>
      <item>
@@ -114,7 +117,11 @@
       </layout>
      </item>
      <item>
-      <widget class="QTextEdit" name="messageLine"/>
+      <widget class="QTextEdit" name="messageLine">
+       <property name="documentTitle">
+        <string extracomment="2dd3"/>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
