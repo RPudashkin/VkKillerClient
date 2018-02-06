@@ -10,13 +10,16 @@
 #include "vkkiller_request_reply.h"
 #include "vkkiller_server_constants.h"
 
+#include <QToolBar>
+
 
 MainWindow::MainWindow(QWidget* parent):
-    QMainWindow         (parent),
-    m_client            (std::make_unique<VkKillerClient>()),
-    m_config            (std::make_unique<QFile>("vkkiller_client.config")),
-    ui                  (new Ui::MainWindow),
-    m_blockedMessaging  (false)
+    QMainWindow           (parent),
+    m_client              (std::make_unique<VkKillerClient>()),
+    m_config              (std::make_unique<QFile>("vkkiller_client.config")),
+    ui                    (new Ui::MainWindow),
+    m_blockedMessaging    (false),
+    m_blockedTopicCreation(false)
 
 {
     ui->setupUi(this);
@@ -36,31 +39,7 @@ MainWindow::MainWindow(QWidget* parent):
     connect(&m_updateCooldownTimer, SIGNAL(timeout()),
             this,                   SLOT  (updateCooldownTime()));
 
-    ui->changeUsernameAction->setEnabled(false);
-    ui->connectionStatusLabel->setText("[<font color = 'red'><b>Offline</b></font>]");
-
-    // Read ip address, port and username from config-file
-    if (m_config->exists() && m_config->open(QIODevice::ReadWrite)) {
-        QVector<QString> buffer;
-
-        while (!m_config->atEnd())
-            buffer.push_back(QString(m_config->readLine()));
-
-        if (buffer.size() == 3) {
-            if (buffer[0].length() != 0 && buffer[1].length() != 0 && buffer[2].length() != 0) {
-                QHostAddress address  = QHostAddress(buffer[0]);
-                quint16      port     = QString(buffer[1]).toInt();
-                QString      username = QString(buffer[2]);
-
-                connectToHost(address, port);
-
-                if (username != "anonymous")
-                    m_client->setNameRequest(username);
-            }
-        }
-    } // open config
-
-    m_config->close();
+    loadConfig();
 }
 
 
@@ -71,6 +50,35 @@ MainWindow::~MainWindow() {
 }
 
 
+void MainWindow::loadConfig() noexcept {
+    ui->changeUsernameAction->setEnabled(false);
+    ui->connectionStatusLabel->setText("[<font color = 'red'><b>Offline</b></font>]");
+
+    if (m_config->exists() && m_config->open(QIODevice::ReadWrite)) {
+        QVector<QString> buffer;
+
+        while (!m_config->atEnd())
+            buffer.push_back(QString(m_config->readLine()));
+
+        if (buffer.size() == 3) {
+            if (buffer[0].length() != 0 && buffer[1].length() != 0 && buffer[2].length() != 0) {
+                QString username  = QString(buffer[2]);
+                        m_address = QHostAddress(buffer[0]);
+                        m_port    = QString(buffer[1]).toInt();
+
+                connectToHost(m_address, m_port);
+
+                if (username != "anonymous")
+                    m_client->setNameRequest(username);
+            }
+        }
+        m_client->getTopicsListRequest();
+    } // open config
+
+    m_config->close();
+}
+
+
 void MainWindow::openConnectionDialog() {
     ConnectionToHostDialog dialog;
     int result = dialog.exec();
@@ -78,14 +86,14 @@ void MainWindow::openConnectionDialog() {
     if (result != QDialog::Accepted)
         return;
 
-    QHostAddress address = dialog.address();
-    quint16      port    = dialog.port	 ();
+    m_address = dialog.address();
+    m_port    = dialog.port	  ();
 
-    connectToHost(address, port);
+    connectToHost(m_address, m_port);
 
     m_config->open(QIODevice::WriteOnly);
     QTextStream out(m_config.get());
-    out << address.toString() << "\n" << QString::number(port) << "\n" << "anonymous";
+    out << m_address.toString() << "\n" << QString::number(m_port) << "\n" << "anonymous";
     m_config->close();
 }
 
@@ -112,6 +120,11 @@ void MainWindow::openUsernameChangeDialog() {
 
     QString username = dialog.username();
     m_client->setNameRequest(username);
+
+    m_config->open(QIODevice::WriteOnly);
+    QTextStream out(m_config.get());
+    out << m_address.toString() << "\n" << QString::number(m_port) << "\n" << username;
+    m_config->close();
 }
 
 
@@ -137,6 +150,11 @@ void MainWindow::connectionError(QAbstractSocket::SocketError socketError) {
 
 
 void MainWindow::on_createTopic_clicked() {
+    if (m_blockedTopicCreation) {
+        QMessageBox::warning(0, "Warning", "You may create only one topic per 3 minutes!");
+        return;
+    }
+
     CreateTopicDialog dialog;
     int result = dialog.exec();
 
@@ -147,7 +165,11 @@ void MainWindow::on_createTopic_clicked() {
     QString message   = dialog.message  ();
     m_client->createTopicRequest        (topicName, message);
     m_client->getTopicsListRequest      ();
-    blockMessaging                      ();
+
+    m_blockedTopicCreation = true;
+    QTimer::singleShot(Server_constant::TOPIC_CREATING_COOLDOWN * 1000, [this]() {
+        m_blockedTopicCreation = false;
+    });
 }
 
 
@@ -155,7 +177,6 @@ void MainWindow::blockMessaging() noexcept {
     ui->messageLine->clear      ();
     ui->messageLine->setReadOnly(true);
     ui->send->setEnabled        (false);
-    ui->createTopic->setEnabled (false);
     ui->warningsLabel->setText  ("<font color='gray'><b>"
                                  "Sending a message will be available in 15 sec."
                                  "</b></font>");
@@ -179,8 +200,28 @@ void MainWindow::on_topicsList_currentRowChanged(int currentRow) {
 }
 
 
+void MainWindow::on_updateTopicHistoryButton_clicked() {
+    if (m_client->isWritable()) {
+        int     row     = ui->topicsList->currentRow();
+        quint16 topicId = m_topicsId[row];
+
+        m_client->getLastMessagesRequest(topicId);
+    }
+
+}
+
+
+void MainWindow::on_updateTopicsListButton_clicked() {
+    if (m_client->isWritable())
+        m_client->getTopicsListRequest();
+}
+
+
+
 void MainWindow::on_send_clicked() {
-    QString msg     = ui->messageLine->toPlainText().trimmed();
+    QString msg = ui->messageLine->toPlainText().trimmed();
+    if (msg.isEmpty()) return;
+
     int     row     = ui->topicsList->currentRow();
     quint16 topicId = m_topicsId[row];
 
@@ -267,6 +308,11 @@ void MainWindow::processReplyFromServer() {
                                        "Too fast messaging!"
                                        "</b></font>");
         } // TOO_FAST_MESSAGING
+        else if (reply == Reply_type::TOO_FAST_TOPIC_CREATING) {
+            ui->warningsLabel->setText("<font color=#FF8C00><b>"
+                                       "Too fast topic creating!"
+                                       "</b></font>");
+        }
         else if (reply == Reply_type::UNKNOWN_TOPIC) {
             ui->warningsLabel->setText("<font color=#FF8C00><b>"
                                        "Topic does not exist!"

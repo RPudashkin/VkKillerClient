@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../list-add.svg</file>
+        <file>../../gtk-convert.svg</file>
+    </qresource>
+</RCC>

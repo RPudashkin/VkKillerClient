@@ -1,4 +1,4 @@
-#include <QMessageBox>
+﻿#include <QMessageBox>
 #include "create_topic_dialog.h"
 #include "ui_create_topic_dialog.h"
 #include "vkkiller_server_constants.h"
