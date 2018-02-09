@@ -17,7 +17,6 @@ public:
     VkKillerClient(VkKillerClient&&)                    = delete;
     VkKillerClient& operator=(VkKillerClient&&)         = delete;
 
-    QString name       () const noexcept;
     quint8  currRequest() const noexcept;
 
     void getTopicsListRequest  (                                       ) noexcept;

@@ -6,15 +6,9 @@ VkKillerClient::VkKillerClient(QObject* parent):
     QTcpSocket      (parent),
     m_buffer        (std::make_unique<QByteArray> ()),
     m_outstream     (std::make_unique<QDataStream>(m_buffer.get(), QIODevice::WriteOnly)),
-    m_name          ("anonymous"),
     m_currRequest   (0)
 {
     m_outstream->setVersion(QDataStream::Qt_DefaultCompiledVersion);
-}
-
-
-QString VkKillerClient::name() const noexcept {
-    return m_name;
 }
 
 
@@ -74,6 +68,5 @@ void VkKillerClient::createTopicRequest(const QString& name, const QString& msg)
 void VkKillerClient::setNameRequest(const QString& name) noexcept {
     sendingBegin(Request_type::SET_NAME);
     *m_outstream << name;
-    m_name = name;
     sendingEnd  ();
 }
