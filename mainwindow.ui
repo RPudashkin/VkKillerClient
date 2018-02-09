@@ -226,7 +226,7 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="QTextEdit" name="messageLine">
+       <widget class="TextEdit" name="messageLine">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -289,7 +289,7 @@
      <x>0</x>
      <y>0</y>
      <width>915</width>
-     <height>31</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -320,6 +320,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>TextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>textedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>send</tabstop>
   <tabstop>messageLine</tabstop>

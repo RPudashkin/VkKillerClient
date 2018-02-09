@@ -3,10 +3,11 @@
 
 #include <QTextEdit>
 
-class QWidget;
-class QKeyEvent;
 
-
+/*
+ * TextEdit with support sending a message
+ * after key enter pressed
+*/
 class TextEdit: public QTextEdit {
     Q_OBJECT
 
@@ -16,8 +17,8 @@ public:
 signals:
     void pressedEnter();
 
-protected:
-    void keyPressEvent(QKeyEvent* e);
+private:
+    void keyPressEvent(QKeyEvent* event);
 };
 
 #endif // TEXTEDIT_H

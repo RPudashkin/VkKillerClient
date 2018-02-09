@@ -22,11 +22,14 @@ MainWindow::MainWindow(QWidget* parent):
 {
     ui->setupUi(this);
 
-    connect(m_client.get(), &VkKillerClient::readyRead,
-            this,           &MainWindow::processReplyFromServer);
-
     connect(m_client.get(), SIGNAL(error          (QAbstractSocket::SocketError)),
             this,           SLOT  (connectionError(QAbstractSocket::SocketError)));
+
+    connect(m_client.get(),            &VkKillerClient::readyRead,
+            this,                      &MainWindow::processReplyFromServer);
+
+    connect(&m_updateCooldownTimer,    &QTimer::timeout,
+            this,                      &MainWindow::updateCooldownTime);
 
     connect(ui->connectToServerAction, &QAction::triggered,
             this,                      &MainWindow::openConnectionDialog); 
@@ -34,8 +37,8 @@ MainWindow::MainWindow(QWidget* parent):
     connect(ui->changeUsernameAction,  &QAction::triggered,
             this,                      &MainWindow::openUsernameChangeDialog);
 
-    connect(&m_updateCooldownTimer, SIGNAL(timeout()),
-            this,                   SLOT  (updateCooldownTime()));
+    connect(ui->messageLine,           &TextEdit::pressedEnter,
+            this,                      &MainWindow::on_send_clicked);
 
     loadConfig();
 }
