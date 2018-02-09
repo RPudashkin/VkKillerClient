@@ -1,12 +1,12 @@
 ﻿#include <QMessageBox>
-#include "create_topic_dialog.h"
-#include "ui_create_topic_dialog.h"
+#include "creating_topic_dialog.h"
+#include "ui_creating_topic_dialog.h"
 #include "vkkiller_server_constants.h"
 
 
-CreateTopicDialog::CreateTopicDialog(QWidget* parent) :
+CreatingTopicDialog::CreatingTopicDialog(QWidget* parent) :
     QDialog     (parent),
-    ui          (new Ui::CreateTopicDialog),
+    ui          (new Ui::CreatingTopicDialog),
     m_topicName (""),
     m_message   ("")
 {
@@ -14,12 +14,12 @@ CreateTopicDialog::CreateTopicDialog(QWidget* parent) :
     setFixedSize(600, 300);
 }
 
-CreateTopicDialog::~CreateTopicDialog() {
+CreatingTopicDialog::~CreatingTopicDialog() {
     delete ui;
 }
 
 
-void CreateTopicDialog::on_ok_clicked() {
+void CreatingTopicDialog::on_ok_clicked() {
     QString topicName	= ui->nameLine->text().trimmed();
     QString message     = ui->messageLine->toPlainText().trimmed();
 
@@ -35,7 +35,7 @@ void CreateTopicDialog::on_ok_clicked() {
 }
 
 
-void CreateTopicDialog::on_messageLine_textChanged() {
+void CreatingTopicDialog::on_messageLine_textChanged() {
     QString text = ui->messageLine->toPlainText();
 
     if (text.length() > Server_constant::MAX_MESSAGE_LENGTH) {
@@ -45,11 +45,11 @@ void CreateTopicDialog::on_messageLine_textChanged() {
 }
 
 
-QString CreateTopicDialog::topicName() const noexcept {
+QString CreatingTopicDialog::topicName() const noexcept {
     return m_topicName;
 }
 
 
-QString CreateTopicDialog::message() const noexcept {
+QString CreatingTopicDialog::message() const noexcept {
     return m_message;
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CreateTopicDialog</class>
- <widget class="QDialog" name="CreateTopicDialog">
+ <class>CreatingTopicDialog</class>
+ <widget class="QDialog" name="CreatingTopicDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -167,7 +167,7 @@
   <connection>
    <sender>close</sender>
    <signal>clicked()</signal>
-   <receiver>CreateTopicDialog</receiver>
+   <receiver>CreatingTopicDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "create_topic_dialog.h"
+#include "creating_topic_dialog.h"
 #include "connection_to_host_dialog.h"
 #include "changing_username_dialog.h"
 
@@ -156,7 +156,7 @@ void MainWindow::on_createTopic_clicked() {
         return;
     }
 
-    CreateTopicDialog dialog;
+    CreatingTopicDialog dialog;
     int result = dialog.exec();
 
     if (result != QDialog::Accepted)
