@@ -10,8 +10,6 @@
 #include "vkkiller_request_reply.h"
 #include "vkkiller_server_constants.h"
 
-#include <QToolBar>
-
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow           (parent),

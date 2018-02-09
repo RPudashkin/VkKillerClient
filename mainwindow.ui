@@ -24,7 +24,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/gtk-convert.svg</normaloff>:/gtk-convert.svg</iconset>
+          <normaloff>:/resources/gtk-convert.svg</normaloff>:/resources/gtk-convert.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -57,7 +57,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/gtk-convert.svg</normaloff>:/gtk-convert.svg</iconset>
+          <normaloff>:/resources/gtk-convert.svg</normaloff>:/resources/gtk-convert.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -93,7 +93,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/list-add.svg</normaloff>:/list-add.svg</iconset>
+          <normaloff>:/resources/list-add.svg</normaloff>:/resources/list-add.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
