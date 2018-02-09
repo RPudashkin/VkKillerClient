@@ -390,7 +390,7 @@ void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
                 color = '0' % color;
         }
 
-        return '#' % color;
+        return '#' + color;
     };
 
     size_t finish = history.size() - 4;
