@@ -74,5 +74,6 @@ void VkKillerClient::createTopicRequest(const QString& name, const QString& msg)
 void VkKillerClient::setNameRequest(const QString& name) noexcept {
     sendingBegin(Request_type::SET_NAME);
     *m_outstream << name;
+    m_name = name;
     sendingEnd  ();
 }

@@ -1,10 +1,8 @@
-#ifndef VKKILLERCLIENT_H
-#define VKKILLERCLIENT_H
+#ifndef VKKILLER_CLIENT_H
+#define VKKILLER_CLIENT_H
 
 #include <QTcpSocket>
-#include <QByteArray>
 #include <QDataStream>
-#include <QString>
 #include <memory>
 
 
@@ -40,4 +38,4 @@ private:
     quint8                       m_currRequest;
 };
 
-#endif // VKKILLERCLIENT_H
+#endif // VKKILLER_CLIENT_H
