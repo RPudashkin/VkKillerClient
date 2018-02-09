@@ -7,6 +7,7 @@
 #include <QTime>
 #include <QFile>
 #include <memory>
+
 #include "vkkiller_client.h"
 
 namespace Ui {

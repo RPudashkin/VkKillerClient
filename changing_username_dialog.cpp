@@ -1,5 +1,4 @@
-﻿#include <QValidator>
-#include "changing_username_dialog.h"
+﻿#include "changing_username_dialog.h"
 #include "ui_changing_username_dialog.h"
 
 

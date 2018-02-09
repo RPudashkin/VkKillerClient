@@ -2,7 +2,6 @@
 #define CHANGING_USERNAME_DIALOG_H
 
 #include <QDialog>
-#include <QString>
 
 namespace Ui {
     class ChangingUsernameDialog;
