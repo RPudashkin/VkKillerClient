@@ -1,5 +1,7 @@
 ﻿#include <QMessageBox>
 #include <QFile>
+#include <QStringBuilder>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -385,10 +387,10 @@ void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
 
         if (len < 6) {
             for (int i = 6 - len; i > 0; i--)
-                color = "0" + color;
+                color = '0' % color;
         }
 
-        return "#" + color;
+        return '#' % color;
     };
 
     size_t finish = history.size() - 4;
@@ -403,19 +405,19 @@ void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
         if (author != "anonymous")
             color = colorGen(authorId.toInt());
 
-        QString entry    = "<font color="
-                         + color
-                         + "><b>"
-                         + author
-                         + "</b></font> <i>#"
-                         + authorId
-                         + "</i> ["
-                         + time
-                         + "] ["
-                         + date
-                         + "]<p>"
-                         + message
-                         + "</p>";
+        QString entry = "<font color="
+                      % color
+                      % "><b>"
+                      % author
+                      % "</b></font> <i>#"
+                      % authorId
+                      % "</i> ["
+                      % time
+                      % "] ["
+                      % date
+                      % "]<p>"
+                      % message
+                      % "</p>";
         ui->topicHistory->append(entry);
     }
 }
