@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QHostAddress>
+#include <QModelIndex>
 #include <QTimer>
 #include <QTime>
 #include <QFile>
@@ -24,18 +25,18 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_topicsList_currentRowChanged    (int currentRow);
-    void on_update_clicked                  ();
-    void on_send_clicked                    ();
-    void on_createTopic_clicked             ();
-    void on_messageLine_textChanged         ();
+    void on_topicsList_clicked	    (QModelIndex index);
+    void on_update_clicked          ();
+    void on_send_clicked            ();
+    void on_createTopic_clicked     ();
+    void on_messageLine_textChanged ();
 
-    void openConnectionDialog               ();
-    void openUsernameChangeDialog           ();
+    void openConnectionDialog       ();
+    void openUsernameChangeDialog   ();
 
-    void connectionError                    (QAbstractSocket::SocketError err);
-    void processReplyFromServer             ();
-    void updateCooldownTime                 ();
+    void connectionError            (QAbstractSocket::SocketError err);
+    void processReplyFromServer     ();
+    void updateCooldownTime         ();
 
 private:
     void loadConfig         ()                          noexcept;

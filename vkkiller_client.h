@@ -17,9 +17,6 @@ public:
     VkKillerClient(VkKillerClient&&)                    = delete;
     VkKillerClient& operator=(VkKillerClient&&)         = delete;
 
-    quint8 prevRequest() const noexcept;
-    bool   isConnected;
-
     void getTopicsListRequest  (                                       ) noexcept;
     void setNameRequest        (const QString& name                    ) noexcept;
     void createTopicRequest    (const QString& name, const QString& msg) noexcept;
@@ -34,8 +31,6 @@ private:
 
     std::unique_ptr<QByteArray>  m_buffer;
     std::unique_ptr<QDataStream> m_outstream;
-    QString                      m_name;
-    quint8                       m_prevRequest;
 };
 
 #endif // VKKILLER_CLIENT_H

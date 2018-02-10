@@ -186,12 +186,18 @@ void MainWindow::blockMessaging() noexcept {
 }
 
 
-void MainWindow::on_topicsList_currentRowChanged(int currentRow) {
+void MainWindow::on_topicsList_clicked(QModelIndex index) {
     ui->topicHistory->clear();
-    if (currentRow < 0) return;
+    int row = index.row();
 
-    m_currTopicId = m_topicsId[currentRow];
-    m_client->getTopicHistoryRequest(m_currTopicId);
+    if (m_currTopicId == m_topicsId[row]) {
+        m_client->getLastMessagesRequest(m_currTopicId);
+        return;
+    }
+    else {
+        m_currTopicId = m_topicsId[row];
+        m_client->getTopicHistoryRequest(m_currTopicId);
+    }
 
     if (!m_blockedMessaging) {
         ui->messageLine->setReadOnly(false);
@@ -276,31 +282,24 @@ void MainWindow::processReplyFromServer() {
         quint8 reply;
         in >> reply;
 
-        if (reply == Reply_type::OK) {
-            if (!m_client->isConnected) {
-                markClientAsOnline();
-                m_client->isConnected = true;
-                continue;
-            }
-
+        if (reply == Reply_type::CONNECTED) {
+            markClientAsOnline();
+            continue;
+        }
+        else if (reply == Reply_type::TOPICS_LIST) {
             QString msg;
             in >> msg;
-            if (msg.isEmpty()) continue;
 
-            quint8 prevRequest = m_client->prevRequest();
+            updateTopicsList(msg);
+        }
+        else if (reply == Reply_type::TOPIC_HISTORY ||
+                 reply == Reply_type::LAST_MESSAGES)
+        {
+            QString msg;
+            in >> msg;
 
-            if (prevRequest == Request_type::GET_TOPICS_LIST) {
-                updateTopicsList(msg);
-            }
-            else if (prevRequest == Request_type::GET_TOPIC_HISTORY ||
-                     prevRequest == Request_type::GET_LAST_MESSAGES_FROM_TOPIC)
-            {
-                updateTopicHistory(msg);
-            }
-
-            if (!ui->warningsLabel->text().isEmpty() && !m_blockedMessaging)
-                ui->warningsLabel->clear();
-        } // OK
+            updateTopicHistory(msg);
+        }
         else if (reply == Reply_type::TOO_FAST_MESSAGING) {
             ui->warningsLabel->setText("<font color=#FF8C00><b>"
                                        "Too fast messaging!"
@@ -346,14 +345,17 @@ void MainWindow::processReplyFromServer() {
 
 
 void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
-    if (server_msg.isEmpty()) return;
+    if (server_msg.isEmpty())
+        return;
+    if (!ui->warningsLabel->text().isEmpty() && !m_blockedMessaging)
+        ui->warningsLabel->clear();
 
     QStringList topicsList = server_msg.split(Server_constant::SEPARATING_CH);
     ui->topicsList->clear();
     m_topicsId.clear();
 
-    QVector<QString>    topicsNames;
-    QVector<int>        topicsRatings;
+    QVector<QString> topicsNames;
+    QVector<int>     topicsRatings;
 
     size_t finish = topicsList.size() - 3;
     for (size_t i = 0; i < finish; i += 3) {
@@ -364,23 +366,32 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
         m_topicsId.push_back   (topicId);
         topicsNames.push_back  (std::move(topicName));
         topicsRatings.push_back(topicRating);
-    }
 
-    // sort by rating here
-    // ...
+        if (topicsRatings.size() > 1)
+            for (int i = topicsRatings.size() - 1; i > 0; --i)
+                if (topicsRatings[i] > topicsRatings[i-1]) {
+                    std::swap(topicsRatings[i], topicsRatings[i-1]);
+                    std::swap(topicsNames  [i], topicsNames  [i-1]);
+                    std::swap(m_topicsId   [i], m_topicsId   [i-1]);
+                }
+    }
 
     for (auto& name: topicsNames)
         ui->topicsList->addItem(name);
 
-    for (int row = 0; row < m_topicsId.size(); ++row) {
-        if (m_topicsId[row] == m_currTopicId)
+    for (int row = 0; row < m_topicsId.size(); ++row)
+        if (m_topicsId[row] == m_currTopicId) {
             ui->topicsList->setCurrentRow(row);
-    }
+            break;
+        }
 }
 
 
 void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
-    if (server_msg.isEmpty()) return;
+    if (server_msg.isEmpty())
+        return;
+    if (!ui->warningsLabel->text().isEmpty() && !m_blockedMessaging)
+        ui->warningsLabel->clear();
 
     QStringList history = server_msg.split(Server_constant::SEPARATING_CH);
 
