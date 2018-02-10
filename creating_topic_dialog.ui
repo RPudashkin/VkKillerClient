@@ -117,7 +117,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QTextEdit" name="messageLine">
+      <widget class="TextEdit" name="messageLine">
        <property name="documentTitle">
         <string extracomment="2dd3"/>
        </property>
@@ -132,6 +132,9 @@
          </property>
          <property name="text">
           <string>Ok</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -162,6 +165,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>TextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>textedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

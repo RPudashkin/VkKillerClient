@@ -13,6 +13,9 @@ CreatingTopicDialog::CreatingTopicDialog(QWidget* parent) :
 {
     ui->setupUi(this);
     setFixedSize(600, 300);
+
+    connect(ui->messageLine, &TextEdit::pressedEnter,
+            this,            &CreatingTopicDialog::on_ok_clicked);
 }
 
 CreatingTopicDialog::~CreatingTopicDialog() {
