@@ -39,16 +39,17 @@ private slots:
     void updateCooldownTime                 ();
 
 private:
-    void loadConfig         ()                                          noexcept;
-    void connectToHost      (const QHostAddress& address, quint16 port) noexcept;
-    void updateTopicsList   (const QString& server_msg)                 noexcept;
-    void updateTopicHistory (const QString& server_msg)                 noexcept;
-    void blockMessaging     ()                                          noexcept;
+    void loadConfig         ()                          noexcept;
+    void markClientAsOnline ()                          noexcept;
+    void updateTopicsList   (const QString& server_msg) noexcept;
+    void updateTopicHistory (const QString& server_msg) noexcept;
+    void blockMessaging     ()                          noexcept;
 
     std::unique_ptr<VkKillerClient> m_client;
     std::unique_ptr<QFile>          m_config;
     QHostAddress                    m_address;
     quint16                         m_port;
+    QString                         m_username;
     QVector<quint16>                m_topicsId;
     Ui::MainWindow*                 ui;
     QTimer                          m_updateCooldownTimer;

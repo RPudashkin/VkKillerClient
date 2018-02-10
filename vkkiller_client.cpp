@@ -4,6 +4,7 @@
 
 VkKillerClient::VkKillerClient(QObject* parent):
     QTcpSocket      (parent),
+    isConnected     (false),
     m_buffer        (std::make_unique<QByteArray> ()),
     m_outstream     (std::make_unique<QDataStream>(m_buffer.get(), QIODevice::WriteOnly)),
     m_currRequest   (0)

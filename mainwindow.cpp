@@ -65,17 +65,13 @@ void MainWindow::loadConfig() noexcept {
 
         if (buffer.size() == 3) {
             if (buffer[0].length() != 0 && buffer[1].length() != 0 && buffer[2].length() != 0) {
-                QString username  = QString(buffer[2]);
-                        m_address = QHostAddress(buffer[0]);
-                        m_port    = QString(buffer[1]).toInt();
+                    m_address  = QHostAddress(buffer[0]);
+                    m_port     = QString(buffer[1]).toInt();
+                    m_username = QString(buffer[2]);
 
-                connectToHost(m_address, m_port);
-
-                if (username != "anonymous")
-                    m_client->setNameRequest(username);
+                m_client->connectToHost(m_address, m_port);
             }
         }
-        m_client->getTopicsListRequest();
     } // open config
 
     m_config->close();
@@ -92,7 +88,7 @@ void MainWindow::openConnectionDialog() {
     m_address = dialog.address();
     m_port    = dialog.port	  ();
 
-    connectToHost(m_address, m_port);
+    m_client->connectToHost(m_address, m_port);
 
     m_config->open(QIODevice::WriteOnly);
     QTextStream out(m_config.get());
@@ -101,10 +97,11 @@ void MainWindow::openConnectionDialog() {
 }
 
 
-void MainWindow::connectToHost(const QHostAddress &address, quint16 port) noexcept {
-    m_client->connectToHost(address, port);
-
+void MainWindow::markClientAsOnline() noexcept {
     if (m_client->isValid()) {
+        if (m_username != "anonymous")
+            m_client->setNameRequest(m_username);
+
         m_client->getTopicsListRequest      ();
         ui->warningsLabel->clear            ();
         ui->createTopic->setEnabled         (true);
@@ -210,7 +207,6 @@ void MainWindow::on_updateTopicHistoryButton_clicked() {
 
         m_client->getLastMessagesRequest(topicId);
     }
-
 }
 
 
@@ -218,7 +214,6 @@ void MainWindow::on_updateTopicsListButton_clicked() {
     if (m_client->isWritable())
         m_client->getTopicsListRequest();
 }
-
 
 
 void MainWindow::on_send_clicked() {
@@ -288,6 +283,12 @@ void MainWindow::processReplyFromServer() {
         in >> reply;
 
         if (reply == Reply_type::OK) {
+            if (!m_client->isConnected) {
+                markClientAsOnline();
+                m_client->isConnected = true;
+                continue;
+            }
+
             QString msg;
             in >> msg;
             if (msg.isEmpty()) continue;
@@ -351,6 +352,8 @@ void MainWindow::processReplyFromServer() {
 
 
 void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
+    if (server_msg.isEmpty()) return;
+
     QStringList topicsList = server_msg.split(Server_constant::SEPARATING_CH);
     ui->topicsList->clear();
     m_topicsId.clear();
@@ -378,6 +381,8 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
 
 
 void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
+    if (server_msg.isEmpty()) return;
+
     QStringList history = server_msg.split(Server_constant::SEPARATING_CH);
 
     auto colorGen = [](size_t authorId) {
