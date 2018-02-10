@@ -190,29 +190,23 @@ void MainWindow::on_topicsList_currentRowChanged(int currentRow) {
     ui->topicHistory->clear();
     if (currentRow < 0) return;
 
-    quint16 topicId = m_topicsId[currentRow];
-    m_client->getTopicHistoryRequest(topicId);
+    m_currTopicId = m_topicsId[currentRow];
+    m_client->getTopicHistoryRequest(m_currTopicId);
 
     if (!m_blockedMessaging) {
         ui->messageLine->setReadOnly(false);
         ui->send->setEnabled        (true);
     }
+
+    ui->update->setEnabled(true);
 }
 
 
-void MainWindow::on_updateTopicHistoryButton_clicked() {
+void MainWindow::on_update_clicked() {
     if (m_client->isWritable()) {
-        int     row     = ui->topicsList->currentRow();
-        quint16 topicId = m_topicsId[row];
-
-        m_client->getLastMessagesRequest(topicId);
-    }
-}
-
-
-void MainWindow::on_updateTopicsListButton_clicked() {
-    if (m_client->isWritable())
         m_client->getTopicsListRequest();
+        m_client->getLastMessagesRequest(m_currTopicId);
+    }
 }
 
 
@@ -293,13 +287,13 @@ void MainWindow::processReplyFromServer() {
             in >> msg;
             if (msg.isEmpty()) continue;
 
-            quint8 currRequest = m_client->currRequest();
+            quint8 prevRequest = m_client->prevRequest();
 
-            if (currRequest == Request_type::GET_TOPICS_LIST) {
+            if (prevRequest == Request_type::GET_TOPICS_LIST) {
                 updateTopicsList(msg);
             }
-            else if (currRequest == Request_type::GET_TOPIC_HISTORY ||
-                     currRequest == Request_type::GET_LAST_MESSAGES_FROM_TOPIC)
+            else if (prevRequest == Request_type::GET_TOPIC_HISTORY ||
+                     prevRequest == Request_type::GET_LAST_MESSAGES_FROM_TOPIC)
             {
                 updateTopicHistory(msg);
             }
@@ -377,6 +371,11 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
 
     for (auto& name: topicsNames)
         ui->topicsList->addItem(name);
+
+    for (int row = 0; row < m_topicsId.size(); ++row) {
+        if (m_topicsId[row] == m_currTopicId)
+            ui->topicsList->setCurrentRow(row);
+    }
 }
 
 

@@ -7,19 +7,19 @@ VkKillerClient::VkKillerClient(QObject* parent):
     isConnected     (false),
     m_buffer        (std::make_unique<QByteArray> ()),
     m_outstream     (std::make_unique<QDataStream>(m_buffer.get(), QIODevice::WriteOnly)),
-    m_currRequest   (0)
+    m_prevRequest   (0)
 {
     m_outstream->setVersion(QDataStream::Qt_DefaultCompiledVersion);
 }
 
 
-quint8 VkKillerClient::currRequest() const noexcept {
-    return  m_currRequest;
+quint8 VkKillerClient::prevRequest() const noexcept {
+    return  m_prevRequest;
 }
 
 
 inline void VkKillerClient::sendingBegin(quint8 request_type) noexcept {
-    m_currRequest = request_type;
+    m_prevRequest = request_type;
     m_buffer->clear();
     m_outstream->device()->seek(0);
     *m_outstream << quint16(0) << request_type;

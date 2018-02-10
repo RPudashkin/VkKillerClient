@@ -25,8 +25,7 @@ public:
 
 private slots:
     void on_topicsList_currentRowChanged    (int currentRow);
-    void on_updateTopicHistoryButton_clicked();
-    void on_updateTopicsListButton_clicked  ();
+    void on_update_clicked                  ();
     void on_send_clicked                    ();
     void on_createTopic_clicked             ();
     void on_messageLine_textChanged         ();
@@ -51,6 +50,7 @@ private:
     quint16                         m_port;
     QString                         m_username;
     QVector<quint16>                m_topicsId;
+    quint16                         m_currTopicId;
     Ui::MainWindow*                 ui;
     QTimer                          m_updateCooldownTimer;
     QTime                           m_startCooldownTime;
