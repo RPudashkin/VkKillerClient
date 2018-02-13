@@ -173,12 +173,12 @@ void MainWindow::on_createTopic_clicked() {
 
 
 void MainWindow::blockMessaging() noexcept {
-    ui->messageLine->clear      ();
-    ui->messageLine->setReadOnly(true);
-    ui->send->setEnabled        (false);
-    ui->warningsLabel->setText  ("<font color='gray'><b>"
-                                 "Sending a message will be available in 15 sec."
-                                 "</b></font>");
+    ui->messageLine->clear       ();
+    ui->messageLine->setReadOnly (true);
+    ui->send->setEnabled         (false);
+    ui->warningsLabel->setText   ("<font color='gray'><b>"
+                                  "Sending a message will be available in 15 sec."
+                                  "</b></font>");
     m_blockedMessaging  = true;
     m_startCooldownTime = QTime::currentTime();
     m_updateCooldownTimer.start(1000);
@@ -245,16 +245,16 @@ void MainWindow::updateCooldownTime() {
     int cooldown = Server_constant::MESSAGING_COOLDOWN - secs;
     if (cooldown < 0) cooldown = 0;
 
-    ui->warningsLabel->setText  ("<font color='gray'><b>"
-                                 "Sending a message will be available in "
-                                 + QString::number(cooldown) +
-                                 " sec. </b></font>");
+    ui->warningsLabel->setText("<font color='gray'><b>"
+                               "Sending a message will be available in "
+                               + QString::number(cooldown) +
+                               " sec. </b></font>");
     if (!cooldown) {
         ui->warningsLabel->clear    ();
         ui->messageLine->setReadOnly(false);
         ui->send->setEnabled        (true);
         ui->createTopic->setEnabled (true);
-        m_blockedMessaging =        false;
+        m_blockedMessaging         = false;
         m_updateCooldownTimer.stop  ();
     }
 }
@@ -265,6 +265,10 @@ void MainWindow::processReplyFromServer() {
     quint16     blockSize = 0;
 
     in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+
+    auto warning = [this](const QString& str) {
+        ui->warningsLabel->setText("<font color=#FF8C00><b>" % str % "</b></font>");
+    };
 
     while (true) {
         if (!blockSize) {
@@ -299,46 +303,29 @@ void MainWindow::processReplyFromServer() {
 
             updateTopicHistory(msg);
         }
-        else if (reply == Reply_type::TOO_FAST_MESSAGING) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Too fast messaging!"
-                                       "</b></font>");
-        } // TOO_FAST_MESSAGING
-        else if (reply == Reply_type::TOO_FAST_TOPIC_CREATING) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Too fast topic creating!"
-                                       "</b></font>");
-        }
-        else if (reply == Reply_type::UNKNOWN_TOPIC) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Topic does not exist!"
-                                       "</b></font>");
-        } // UNKNOWN_TOPIC
-        else if (reply == Reply_type::WRONG_NAME) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Server has rejected username!"
-                                       "</b></font>");
-        } // WRONG_NAME
-        else if (reply == Reply_type::WRONG_MESSAGE) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Server has rejected message!"
-                                       "</b></font>");
-        } // WRONG_MESSAGE
-        else if (reply == Reply_type::WRONG_TOPIC_NAME) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Server has rejected topic name!"
-                                       "</b></font>");
-        } // WRONG_TOPIC_NAME
-        else if (reply == Reply_type::FAILED_TOPIC_CREATE) {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Failed topic create!"
-                                       "</b></font>");
-        } // FAILED_TOPIC_CREATE
-        else {
-            ui->warningsLabel->setText("<font color=#FF8C00><b>"
-                                       "Unknown request!"
-                                       "</b></font>");
-        } // UNKNOWN_REQUEST
+
+        else if (reply == Reply_type::TOO_FAST_MESSAGING)
+            warning("Too fast messaging!");
+
+        else if (reply == Reply_type::TOO_FAST_TOPIC_CREATING)
+            warning("Too fast topic creating!");
+
+        else if (reply == Reply_type::UNKNOWN_TOPIC)
+            warning("Topic does not exist!");
+
+        else if (reply == Reply_type::WRONG_NAME)
+            warning("Server has rejected username!");
+
+        else if (reply == Reply_type::WRONG_MESSAGE)
+            warning("Server has rejected message!");
+
+        else if (reply == Reply_type::WRONG_TOPIC_NAME)
+            warning("Server has rejected topic name!");
+
+        else if (reply == Reply_type::FAILED_TOPIC_CREATE)
+            warning("Failed topic create!");
+
+        else warning("Unknown request!");
     }
 }
 
