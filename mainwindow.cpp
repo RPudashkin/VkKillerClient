@@ -340,8 +340,9 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
     ui->topicsList->clear();
     m_topicsId.clear();
 
-    QVector<QString> topicsNames;
-    QVector<int>     topicsRatings;
+    // id-topicName-rating
+    using entry_t = std::tuple<int, QString, int>;
+    QVector<entry_t> sorted;
 
     size_t finish = topicsList.size() - 3;
     for (size_t i = 0; i < finish; i += 3) {
@@ -349,27 +350,23 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
         QString topicName   = topicsList.at(i+1);
         int     topicRating = topicsList.at(i+2).toInt();
 
-        m_topicsId.push_back   (topicId);
-        topicsNames.push_back  (std::move(topicName));
-        topicsRatings.push_back(topicRating);
-
-        if (topicsRatings.size() > 1)
-            for (int i = topicsRatings.size() - 1; i > 0; --i)
-                if (topicsRatings[i] > topicsRatings[i-1]) {
-                    std::swap(topicsRatings[i], topicsRatings[i-1]);
-                    std::swap(topicsNames  [i], topicsNames  [i-1]);
-                    std::swap(m_topicsId   [i], m_topicsId   [i-1]);
-                }
+        sorted.push_back(std::make_tuple(topicId, std::move(topicName), topicRating));
     }
 
-    for (auto& name: topicsNames)
-        ui->topicsList->addItem(name);
+    std::sort(sorted.begin(), sorted.end(),
+    [](const entry_t& entry1, const entry_t& entry2) {
+        return std::get<2>(entry1) > std::get<2>(entry2);
+    });
 
-    for (int row = 0; row < m_topicsId.size(); ++row)
-        if (m_topicsId[row] == m_currTopicId) {
-            ui->topicsList->setCurrentRow(row);
-            break;
-        }
+
+    for (entry_t& entry: sorted) {
+        m_topicsId.push_back    (std::get<0>(entry));
+        ui->topicsList->addItem (std::get<1>(entry));
+
+        int num = m_topicsId.size() - 1;
+        if (m_topicsId[num] == m_currTopicId)
+            ui->topicsList->setCurrentRow(num);
+    }
 }
 
 
