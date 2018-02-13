@@ -163,8 +163,7 @@ void MainWindow::on_createTopic_clicked() {
 
     QString topicName = dialog.topicName();
     QString message   = dialog.message  ();
-    m_client->createTopicRequest        (topicName, message);
-    m_client->getTopicsListRequest      ();
+    m_client->createTopicRequest(topicName, message);
 
     m_blockedTopicCreation = true;
     QTimer::singleShot(Server_constant::TOPIC_CREATING_COOLDOWN * 1000, [this]() {
