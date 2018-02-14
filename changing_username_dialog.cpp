@@ -10,7 +10,7 @@ ChangingUsernameDialog::ChangingUsernameDialog(QWidget* parent):
     ui->setupUi(this);
     setFixedSize(400, 100);
     
-    QValidator* validator = new QRegExpValidator(QRegExp("[a-zA-Z0-9а-яёА-ЯЁ#_]*"), this);
+    QValidator* validator = new QRegExpValidator(QRegExp("[a-zA-Z0-9а-яёА-ЯЁ_]*"), this);
     ui->usernameLine->setValidator(validator);
 }
 

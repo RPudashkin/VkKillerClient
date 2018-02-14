@@ -142,7 +142,6 @@ void MainWindow::connectionError(QAbstractSocket::SocketError socketError) {
     ui->connectionStatusLabel->setText  ("[<font color = 'red'><b>Offline</b></font>]");
     ui->warningsLabel->setText          (strError);
     ui->messageLine->clear              ();
-    ui->messageLine->setReadOnly        (true);
     ui->send->setEnabled                (false);
     ui->createTopic->setEnabled         (false);
     ui->changeUsernameAction->setEnabled(false);
@@ -174,7 +173,6 @@ void MainWindow::on_createTopic_clicked() {
 
 void MainWindow::blockMessaging() noexcept {
     ui->messageLine->clear       ();
-    ui->messageLine->setReadOnly (true);
     ui->send->setEnabled         (false);
     ui->warningsLabel->setText   ("<font color='gray'><b>"
                                   "Sending a message will be available in 15 sec."
@@ -208,16 +206,14 @@ void MainWindow::on_topicsList_clicked(QModelIndex index) {
 
 
 void MainWindow::on_update_clicked() {
-    if (m_client->isWritable()) {
+    if (m_client->isWritable())
         m_client->getTopicsListRequest();
-        m_client->getLastMessagesRequest(m_currTopicId);
-    }
 }
 
 
 void MainWindow::on_send_clicked() {
     QString msg = ui->messageLine->toPlainText().trimmed();
-    if (msg.isEmpty()) return;
+    if (msg.isEmpty() || !ui->send->isEnabled()) return;
 
     int     row     = ui->topicsList->currentRow();
     quint16 topicId = m_topicsId[row];
@@ -251,7 +247,6 @@ void MainWindow::updateCooldownTime() {
                                " sec. </b></font>");
     if (!cooldown) {
         ui->warningsLabel->clear    ();
-        ui->messageLine->setReadOnly(false);
         ui->send->setEnabled        (true);
         ui->createTopic->setEnabled (true);
         m_blockedMessaging         = false;
@@ -357,7 +352,6 @@ void MainWindow::updateTopicsList(const QString& server_msg) noexcept {
     [](const entry_t& entry1, const entry_t& entry2) {
         return std::get<2>(entry1) > std::get<2>(entry2);
     });
-
 
     for (entry_t& entry: sorted) {
         m_topicsId.push_back    (std::get<0>(entry));
