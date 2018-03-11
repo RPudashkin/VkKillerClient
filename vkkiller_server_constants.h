@@ -7,7 +7,7 @@ namespace Server_constant {
     constexpr quint8  MAX_CLIENT_NAME_LENGTH  = 32;
     constexpr quint8  MAX_TOPIC_NAME_LENGTH   = 150;
     constexpr int     MESSAGING_COOLDOWN      = 15;  // sec.
-    constexpr int     TOPIC_CREATING_COOLDOWN = 180; // sec.
+    constexpr int     TOPIC_CREATING_COOLDOWN = 0; // sec.
     constexpr char	  SEPARATING_CH           = '\1';
 }
 

@@ -1,6 +1,7 @@
 ﻿#include <QMessageBox>
 #include <QFile>
 #include <QStringBuilder>
+#include <QSettings>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -16,7 +17,7 @@
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow           (parent),
     m_client              (std::make_unique<VkKillerClient>()),
-    m_config              (std::make_unique<QFile>("vkkiller_client.config")),
+    m_settings            (std::make_unique<QSettings>("VkKillers", "VkKillerClient")),
     ui                    (new Ui::MainWindow),
     m_blockedMessaging    (false),
     m_blockedTopicCreation(false)
@@ -42,39 +43,29 @@ MainWindow::MainWindow(QWidget* parent):
     connect(ui->messageLine,           &TextEdit::pressedEnter,
             this,                      &MainWindow::on_send_clicked);
 
-    loadConfig();
+    restoreSettings();
 }
 
 
 MainWindow::~MainWindow() {
     m_client->disconnectFromHost();
-    if (m_config->isOpen()) m_config->close();
     delete ui;
 }
 
 
-void MainWindow::loadConfig() noexcept {
+void MainWindow::restoreSettings() noexcept {
     ui->changeUsernameAction->setEnabled(false);
     ui->connectionStatusLabel->setText("[<font color = 'red'><b>Offline</b></font>]");
 
-    if (m_config->exists() && m_config->open(QIODevice::ReadWrite)) {
-        QVector<QString> buffer;
+    m_address  = QHostAddress(m_settings->value("address").toString());
+    m_port     = m_settings->value("port").toInt();
+    m_username = m_settings->value("username").toString();
 
-        while (!m_config->atEnd())
-            buffer.push_back(QString(m_config->readLine()));
+    if (!m_address.isNull() && m_port > 0)
+        m_client->connectToHost(m_address, m_port);
 
-        if (buffer.size() == 3) {
-            if (buffer[0].length() != 0 && buffer[1].length() != 0 && buffer[2].length() != 0) {
-                    m_address  = QHostAddress(buffer[0]);
-                    m_port     = QString(buffer[1]).toInt();
-                    m_username = QString(buffer[2]);
-
-                m_client->connectToHost(m_address, m_port);
-            }
-        }
-    } // open config
-
-    m_config->close();
+    QMainWindow::restoreState   (m_settings->value("mainWindowState").toByteArray());
+    QMainWindow::restoreGeometry(m_settings->value("mainWindowGeometry").toByteArray());
 }
 
 
@@ -90,16 +81,14 @@ void MainWindow::openConnectionDialog() {
 
     m_client->connectToHost(m_address, m_port);
 
-    m_config->open(QIODevice::WriteOnly);
-    QTextStream out(m_config.get());
-    out << m_address.toString() << "\n" << QString::number(m_port) << "\n" << "anonymous";
-    m_config->close();
+    m_settings->setValue("address", m_address.toString());
+    m_settings->setValue("port",    m_port);
 }
 
 
 void MainWindow::markClientAsOnline() noexcept {
     if (m_client->isValid()) {
-        if (m_username != "anonymous")
+        if (m_username != "anonymous" && !m_username.isEmpty())
             m_client->setNameRequest(m_username);
 
         m_client->getTopicsListRequest      ();
@@ -118,13 +107,9 @@ void MainWindow::openUsernameChangeDialog() {
     if (result != QDialog::Accepted)
         return;
 
-    QString username = dialog.username();
-    m_client->setNameRequest(username);
-
-    m_config->open(QIODevice::WriteOnly);
-    QTextStream out(m_config.get());
-    out << m_address.toString() << "\n" << QString::number(m_port) << "\n" << username;
-    m_config->close();
+    m_username = dialog.username();
+    m_client->setNameRequest(m_username);
+    m_settings->setValue("username", m_username);
 }
 
 
@@ -412,4 +397,14 @@ void MainWindow::updateTopicHistory(const QString& server_msg) noexcept {
                       % "</p>";
         ui->topicHistory->append(entry);
     }
+}
+
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+    m_settings->setValue("address",            m_address.toString());
+    m_settings->setValue("port",               m_port);
+    m_settings->setValue("username",           m_username);
+    m_settings->setValue("mainWindowState",    saveState());
+    m_settings->setValue("mainWindowGeometry", saveGeometry());
+    QMainWindow::close();
 }

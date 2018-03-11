@@ -15,6 +15,8 @@ namespace Ui {
     class MainWindow;
 }
 
+class QSettings;
+
 
 
 class MainWindow: public QMainWindow {
@@ -39,14 +41,15 @@ private slots:
     void updateCooldownTime         ();
 
 private:
-    void loadConfig         ()                          noexcept;
+    void restoreSettings    ()                          noexcept;
     void markClientAsOnline ()                          noexcept;
     void updateTopicsList   (const QString& server_msg) noexcept;
     void updateTopicHistory (const QString& server_msg) noexcept;
     void blockMessaging     ()                          noexcept;
+    void closeEvent         (QCloseEvent* event);
 
     std::unique_ptr<VkKillerClient> m_client;
-    std::unique_ptr<QFile>          m_config;
+    std::unique_ptr<QSettings>      m_settings;
     QHostAddress                    m_address;
     quint16                         m_port;
     QString                         m_username;
